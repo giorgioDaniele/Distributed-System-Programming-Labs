@@ -15,15 +15,13 @@ paths:
     get:
       tags:
         - films
-      summary: Top level API endpoint
-      description:
-        It returns you a list with
-        some useful service endpoints URLs
+      summary: top level API endpoint
+      description: it returns you a list with some useful service endpoints URLs
       operationId: 
         root
       responses:
         "200":
-          description: The requested films
+          description: some usefult URLs
           content:
             application/json:
               schema:
@@ -44,13 +42,11 @@ paths:
     get:
       tags:
         - films
-      summary: 
-        Fetch all films marked as private
-      operationId: 
-        privateFilms
+      summary:     fetch all films marked as private
+      operationId: privateFilms
       responses:
         '200':
-          description: Private films in the database
+          description: private films in the database
           # Since the list of private films may be huge,
           # please adopt the pagination, i.e. returning
           # a limited number of results
@@ -78,7 +74,7 @@ paths:
     get:
       tags:
         - films
-      summary: Fetch a particular film
+      summary: fetch a particular film
       operationId: privateFilm
       parameters:
         - name: fid
@@ -95,32 +91,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/Film'  
         '401':
-          description: Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
                 type: string        
         '404':
-          description: Film not found
+          description: film not found
   /api/films/private/{fid}/reviews:
     get:
       tags:
         - films
-      summary: 
-        Fetch all reviews associated to a film marked as private
+      summary:     fetch all reviews associated to a film marked as private
       operationId: reviewsPrivateFilm
       parameters:
         - name: fid
           in: path
-          description: 
-            Film ID (the one whose whose reviews are requested)
+          description: film ID (the one whose whose reviews are requested)
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description:
-            Reviews associated to that film in the database
+          description: reviews associated to that film in the database
           content:
             application/json:
               # Since the list of reviews may be huge,
@@ -145,51 +138,46 @@ paths:
                     items:
                       $ref: '#/components/schemas/Review'      
         '404':
-         description: Film not found    
+         description: film not found    
   /api/films/private/{fid}/reviews/{uid}:
     get:
       tags:
         - films
-      summary:
-        Fetch a particular review for a film marked as private
-      operationId: 
-        getReviewPublicFilm
+      summary:     fetch a particular review for a film marked as private
+      operationId: reviewPrivateFilm
       parameters:
         - name: fid
           in: path
-          description: Film ID (the one whose review is requested)
+          description: film ID (the one whose review is requested)
           required: true
           schema:
             type: integer
         - name: uid
           in: path
-          description: User ID (the one whose review is requested)
+          description: user ID (the one whose review is requested)
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: 
-            The requested review
+          description: the requested review
           content:
             application/json:
               schema:
                   $ref: '#/components/schemas/Review'        
         '404':
-         description: Review not found
+         description: review not found
 
 # Public films getters APIs
   /api/films/public:
     get:
       tags:
         - films
-      summary: 
-        Fetch all films marked as public
-      operationId: 
-        publicFilms
+      summary:     fetch all films marked as public
+      operationId: publicFilms
       responses:
         '200':
-          description: Public films in the database
+          description: public films in the database
           # Since the list of public films may be huge,
           # please adopt the pagination, i.e. returning
           # a limited number of results
@@ -217,47 +205,40 @@ paths:
     get:
       tags:
         - films
-      summary: 
-        Fetch a particular film marked as public
-      operationId: 
-        publicFilm
+      summary:     fetch a particular film marked as public
+      operationId: publicFilm
       parameters:
         - name: fid
           in: path
-          description: 
-            Film ID (the one to return)
+          description: film ID (the one to return)
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: Public film in the database
+          description: public film in the database
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Film'          
         '404':
-          description: Film not found  
+          description: film not found  
   /api/films/public/{fid}/reviews:
     get:
       tags:
         - films
-      summary: 
-        Fetch all reviews associated to a film marked as public
-      operationId: 
-        reviewsPublicFilm
+      summary: fetch all reviews associated to a film marked as public
+      operationId: reviewsPublicFilm
       parameters:
         - name: fid
           in: path
-          description: 
-            Film ID (the one whose whose reviews are requested)
+          description: film ID (the one whose whose reviews are requested)
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description:
-            Reviews associated to that film in the database
+          description: reviews associated to that film in the database
           content:
             application/json:
               # Since the list of reviews may be huge,
@@ -282,25 +263,23 @@ paths:
                     items:
                       $ref: '#/components/schemas/Review'       
         '404':
-         description: Film not found    
+         description: film not found    
   /api/films/public/{fid}/reviews/{uid}:
     get:
       tags:
         - films
-      summary:
-        Fetch a particular review for a film marked as public
-      operationId: 
-        reviewPublicFilm
+      summary:     fetch a particular review for a film marked as public
+      operationId: reviewPublicFilm
       parameters:
         - name: fid
           in: path
-          description: Film ID (the one whose whose review is requested)
+          description: film ID (the one whose whose review is requested)
           required: true
           schema:
             type: integer
         - name: uid
           in: path
-          description: User ID (the one whose whose review is requested)
+          description: user ID (the one whose whose review is requested)
           required: true
           schema:
             type: integer
@@ -313,15 +292,14 @@ paths:
               schema:
                   $ref: '#/components/schemas/Review'        
         '404':
-         description: Review not found
+         description: review not found
 
 # Write and delete films APIs
   /api/films:
     post:
       tags:
         - films
-      summary: 
-        Create a new film
+      summary:     create a new film
       operationId: newFilm
       requestBody:
         content:
@@ -330,22 +308,19 @@ paths:
               $ref: '#/components/schemas/New-Film-Request-Body'
       responses:
         '200':
-          description: 
-            New film in database
+          description: new film in database
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Film'
         '401':
-          description: 
-            Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
                 type: string
         '404':
-          description: 
-            Bad request
+          description: bad request
           content:
             text/plain:
               schema:
@@ -354,14 +329,12 @@ paths:
     put:
       tags:
         - films
-      summary: 
-        Edit a film
-      operationId: 
-        editFilm
+      summary: edit a film
+      operationId: editFilm
       parameters:
         - name: fid
           in: path
-          description: Film ID (the one to edit)
+          description: film ID (the one to edit)
           required: true
           schema:
             type: integer
@@ -372,59 +345,50 @@ paths:
               $ref: '#/components/schemas/Film'
       responses:
         '200':
-          description: The updated film resource
+          description: the updated film resource
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Film'          
         '204':
-          description: 
-            No content
+          description: content is null
         '400':
-          description: 
-            Bad request
+          description: bad request
           content:
             text/plain:
               schema:
                 type: string
         '401':
-          description: 
-            Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
                 type: string
         '404':
-          description: Film not found
+          description: film not found
     delete:
       tags:
         - films
-      summary: 
-        Delete a film
-      operationId: 
-        deleteFilm
+      summary: delete a film
+      operationId: deleteFilm
       parameters:
         - name: fid
           in: path
-          description: 
-            Film ID (the one to delete)
+          description: film ID (the one to delete)
           required: true
           schema:
             type: string
       responses:
         '204':
-          description: 
-            No content
+          description: content is null
         '400':
-          description: 
-            Bad request
+          description: bad request
           content:
             text/plain:
               schema:
                 type: string
         '401':
-          description: 
-            Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
@@ -437,13 +401,11 @@ paths:
     get:
       tags:
         - films
-      summary: 
-        Fetch all films created the authenticated user has created
+      summary: fetch all films created the authenticated user has created
       operationId: createdFilms
       responses:
         '200':
-          description: 
-            The requested films
+          description: the requested films
           # Since the list of films may be huge,
           # please adopt the pagination, i.e. returning
           # a limited number of results
@@ -471,8 +433,7 @@ paths:
     get:
       tags:
         - films
-      summary: 
-        Fetch all films to which the authenticated user has been invited to review
+      summary: fetch all films to which the authenticated user has been invited to review
       operationId: filmsToReview
       responses:
         '200':
@@ -507,7 +468,7 @@ paths:
     post:
       tags:
         - users
-      summary: Login the user
+      summary: login the user
       operationId: login
       requestBody:
         content:
@@ -516,28 +477,26 @@ paths:
               $ref: '#/components/schemas/Login-Request-Body' 
       responses:
         '200':
-          description: User sucessfully logged-in
+          description: user sucessfully logged-in
         '400':
-          description: Invalid username/password supplied
+          description: invalid username/password supplied
   /api/user/no-auth:
     post:
       tags:
         - users
-      summary: Logout the user
+      summary: logout the user
       operationId: logout
       responses:
         '200':
-          description: User sucessfully logged-out
+          description: user sucessfully logged-out
 
 # Reviews related APIs
   /api/reviews:
     post:
       tags:
         - reviews
-      summary: 
-        Create a new review
-      operationId: 
-        newReview
+      summary: create a new review
+      operationId: newReview
       requestBody:
         content:
           application/json:
@@ -545,22 +504,19 @@ paths:
               $ref: '#/components/schemas/Review'
       responses:
         '200':
-          description: 
-           New review in database
+          description: new review in database
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
         '401':
-          description:
-            Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
                 type: string
         '404':
-          description: 
-            Bad request
+          description: bad request
           content:
             text/plain:
               schema:
@@ -569,20 +525,19 @@ paths:
     put:
       tags:
         - reviews
-      summary: 
-        Edit a review
+      summary: edit a review
       operationId: 
         editReview
       parameters:
         - name: fid
           in: path
-          description: Film ID (the one whose review is requested)
+          description: film ID (the one whose review is requested)
           required: true
           schema:
             type: integer
         - name: uid
           in: path
-          description: Owner ID (the one to edit)
+          description: owner ID (the one to edit)
           required: true
           schema:
             type: integer
@@ -593,27 +548,27 @@ paths:
               $ref: '#/components/schemas/Review'
       responses:
         '200':
-          description: The updated review resource
+          description: the updated review resource
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'          
         '204':
-          description: No content
+          description: content is null
         '400':
-          description: Bad request
+          description: bad request
           content:
             text/plain:
               schema:
                 type: string
         '401':
-          description: Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
                 type: string
         '404':
-          description: Film not found
+          description: film not found
     delete:
       tags:
         - reviews
@@ -874,12 +829,14 @@ components:
       properties:
         fid:
           type: integer
-        image:
+        name:
+          type: string
+        data:
           type: object
           properties:
             format:
               type: string
-            content:
+            bytes:
               type:   string
               format: base64
       required:
@@ -887,12 +844,14 @@ components:
     New-Image-Request-Body:
       type: object
       properties:
-        image:
+        name:
+          type: string
+        data:
           type: object
           properties:
             format:
               type: string
-            content:
+            bytes:
               type:   string
               format: base64
     Login-Request-Body:
