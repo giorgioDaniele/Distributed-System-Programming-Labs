@@ -44,7 +44,7 @@ paths:
       summary: 
         Fetch all films marked as private
       operationId: 
-        publicFilms
+        privateFilms
       responses:
         '200':
           description: Private films in the database
@@ -240,7 +240,8 @@ paths:
         - films
       summary: 
         Fetch all reviews associated to a film marked as public
-      operationId: reviewsPublicFilm
+      operationId: 
+        reviewsPublicFilm
       parameters:
         - name: fid
           in: path
@@ -285,7 +286,7 @@ paths:
       summary:
         Fetch a particular review for a film marked as public
       operationId: 
-        getReviewPublicFilm
+        reviewPublicFilm
       parameters:
         - name: fid
           in: path
@@ -322,7 +323,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/New Film Request Body'
+              $ref: '#/components/schemas/New-Film-Request-Body'
       responses:
         '200':
           description: 
@@ -509,7 +510,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login Request Body' 
+              $ref: '#/components/schemas/Login-Request-Body' 
       responses:
         '200':
           description: User sucessfully logged-in
@@ -716,7 +717,7 @@ components:
         - id
         - email
         - password
-    Login Request Body:
+    Login-Request-Body:
       type: object
       properties:
         username:
@@ -726,7 +727,7 @@ components:
       required:
         - username
         - password
-    New Film Request Body:
+    New-Film-Request-Body:
       type: object
       properties:
         title:
