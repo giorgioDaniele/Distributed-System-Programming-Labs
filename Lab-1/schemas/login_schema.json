@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "$id": "schemas/login_request",
+    "properties": {
+        "username": {
+            "type": "string",
+            "format": "email"
+        },
+        "password": {
+            "password": {
+                "type": "string",
+                "minLength": 6,
+                "maxLength": 20
+            }
+        }
+    },
+    "required": [
+        "username",
+        "password"
+    ]
+}
