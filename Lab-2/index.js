@@ -26,6 +26,7 @@ Authentication.initAuthentication(app)
 
 const filmDAO   = require(Path.join(__dirname, 'DAOs/FilmDao'))
 const reviewDAO = require(Path.join(__dirname, 'DAOs/ReviewDao'))
+const imageDAO  = require(Path.join(__dirname, 'DAOs/ImageDao'))
 
 // Set up the schema validator
 const loginRequestSchema = 
@@ -100,6 +101,10 @@ const invitedToReviewURL    = '/api/films/invited-to-review'
 const postReviewURL         = '/api/reviews'
 const editReviewURL         = '/api/reviews/:fid/:uid'
 const deleteReviewURL       = '/api/reviews/:fid/:uid'
+const filmImagesURL         = '/api/films/public/:fid/images'
+const filmImageURL          = '/api/films/public/:fid/images/:iid'
+const postImageURL          = '/api/films/public/:fid/images'
+const deleteImageURL        = '/api/films/public/:fid/images/:iid'
 
 app.get(rootURL, applyMiddleware([], filmDAO.root))
 
@@ -121,6 +126,11 @@ app.delete(deleteFilmURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.d
 app.post(postReviewURL, applyMiddleware([Authentication.isLoggedIn], reviewDAO.newReview))
 app.put(editReviewURL, applyMiddleware([Authentication.isLoggedIn], reviewDAO.editReview))
 app.delete(deleteReviewURL, applyMiddleware([Authentication.isLoggedIn], reviewDAO.deleteReview))
+
+app.get(filmImagesURL, applyMiddleware([Authentication.isLoggedIn], imageDAO.filmImages))
+app.get(filmImageURL, applyMiddleware([Authentication.isLoggedIn], imageDAO.filmImage))
+app.post(postImageURL, applyMiddleware([Authentication.isLoggedIn, Storage.uploadImg], imageDAO.newImage))
+app.delete(deleteImageURL, applyMiddleware([Authentication.isLoggedIn], imageDAO.deleteImage))
 
 
 app.post('/api/user/auth', validator.validate({body: loginRequestSchema}), (req, res, next) => {

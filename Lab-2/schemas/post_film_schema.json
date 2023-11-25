@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "$id": "schemas/post_film_request",
+    "properties": {
+        "title": {
+            "type": "string"
+        },
+        "private": {
+            "type": "integer"
+        },
+        "watchDate": {
+            "type": "string",
+            "format": "date"
+        },
+        "rating": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10
+        },
+        "favorite": {
+            "type": "integer",
+            "default": 0
+        }
+    },
+    "required": ["title", "private"],
+    "dependencies": {
+        "watchDate": {
+            "properties": {
+                "private": {
+                    "const": 1
+                }
+            }
+        },
+        "rating": {
+            "properties": {
+                "private": {
+                    "const": 1
+                }
+            }
+        },
+        "favorite": {
+            "properties": {
+                "private": {
+                    "const": 1
+                }
+            }
+        }
+    }
+}

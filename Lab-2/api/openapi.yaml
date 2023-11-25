@@ -8,9 +8,8 @@ tags:
   - name: users
   - name: images
 
-# Root API
 paths:
-  
+  # Root API  
   /api/:
     get:
       tags:
@@ -21,7 +20,7 @@ paths:
         root
       responses:
         "200":
-          description: some usefult URLs
+          description: some useful URLs
           content:
             application/json:
               schema:
@@ -579,27 +578,27 @@ paths:
       parameters:
         - name: fid
           in: path
-          description: Film ID (the one whose review is requested)
+          description: film ID (the one whose review is requested)
           required: true
           schema:
             type: integer
         - name: uid
           in: path
-          description: Owner ID (the one whose to delete)
+          description: owner ID (the one whose to delete)
           required: true
           schema:
             type: integer
       responses:
         '204':
-          description: No content
+          description: content is null
         '400':
-          description: Bad request
+          description: bad request
           content:
             text/plain:
               schema:
                 type: string
         '401':
-          description: Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
@@ -612,20 +611,18 @@ paths:
     get:
       tags:
         - images
-      summary: 
-        Fetch all images related to a film
-      operationId: 
-        filmImages
+      summary: fetch all images related to a film
+      operationId: filmImages
       parameters:
         - name: fid
           in: path
-          description:  Film ID (the one whose whose images are requested)
+          description:  film ID (the one whose whose images are requested)
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: The requested images
+          description: the requested images
           content:
             application/json:
               schema:
@@ -633,24 +630,22 @@ paths:
                 items:
                   $ref: "#/components/schemas/Image"
         '401':
-          description: Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
                 type: string        
         '404':
-          description: Film not found
+          description: film not found
     post:
       tags:
         - images
-      summary: 
-        Upload a new image
-      operationId: 
-        newImage
+      summary: upload a new image
+      operationId: newImage
       parameters:
         - name: fid
           in: path
-          description: Film ID (the one to which associate the film)
+          description: film ID (the one to which associate the film)
           required: true
           schema:
             type: integer
@@ -661,15 +656,13 @@ paths:
               $ref: '#/components/schemas/New-Image-Request-Body'
       responses:
         '200':
-          description: 
-            New image in database
+          description: new image in database
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Image'
         '401':
-          description: 
-            Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
@@ -685,76 +678,84 @@ paths:
     get:
       tags:
         - images
-      summary: 
-        Fetch an image related to a film
-      operationId: 
-        filmImage
+      summary: fetch an image related to a film
+      operationId: filmImage
       parameters:
         - name: fid
           in: path
-          description:  Film ID (the one whose whose image are requested)
+          description:  film ID (the one whose whose image are requested)
           required: true
           schema:
             type: integer
         - name: iid
           in: path
-          description:  Image ID (the one which is requested)
+          description:  image ID (the one which is requested)
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: The requested image
+          description: the requested image
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/Image"
+                $ref: "#/components/schemas/Image"
+            image/png:
+              schema: 
+                  type:   string
+                  format: base64 
+            image/jpeg:
+              schema: 
+                  type:   string
+                  format: base64
+            image/gif:
+              schema: 
+                  type:   string
+                  format: base64       
         '401':
-          description: Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
                 type: string        
         '404':
-          description: Film not found
+          description: film not found
           
     delete:
       tags:
         - images
-      summary: 
-        Delete an image
-      operationId: 
-        deleteImage
+      summary: delete an image
+      operationId: deleteImage
       parameters:
         - name: fid
           in: path
-          description: Film ID (the one whose review is requested)
+          description: film ID (the one whose review is requested)
           required: true
           schema:
             type: integer
         - name: iid
           in: path
-          description: Image ID (the one to delete)
+          description: image ID (the one to delete)
           required: true
           schema:
             type: integer
       responses:
         '204':
-          description: No content
+          description: content is null
         '400':
-          description: Bad request
+          description: bad request
           content:
             text/plain:
               schema:
                 type: string
         '401':
-          description: Authorization information is missing or invalid
+          description: authorization information is missing or invalid
           content:
             text/plain:
               schema:
                 type: string
         '404':
-          description: Film not found
+          description: film not found
           
 components:
   schemas:
@@ -780,7 +781,7 @@ components:
           type:    integer
           default: false
       required:
-        - id
+        - fid
         - owner
         - private
     Review:
@@ -803,8 +804,8 @@ components:
           type: string
           maxLength: 1000
       required:
-        - id
-        - reviewerID
+        - fid
+        - uid
         - completed
     User:
       type: object
@@ -821,7 +822,7 @@ components:
           minLength: 6
           maxLength: 20
       required:
-        - id
+        - uid
         - email
         - password
     Image:
@@ -831,14 +832,6 @@ components:
           type: integer
         name:
           type: string
-        data:
-          type: object
-          properties:
-            format:
-              type: string
-            bytes:
-              type:   string
-              format: base64
       required:
         - fid
     New-Image-Request-Body:
@@ -880,7 +873,7 @@ components:
           type: integer
           minimum: 0
           maximum: 10
-        favorite:
+        favorite: 
           type: integer
           default: false
       required:
