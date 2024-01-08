@@ -1,0 +1,42 @@
+{
+    "type": "object",
+    "properties": {
+        "title": {
+            "type": "string"
+        },
+        "isPrivate": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1
+        },
+        "watchDate": {
+            "type": "string",
+            "nullable": true
+        },
+        "rating": {
+            "type": "integer", 
+            "minimum": 0,
+            "maximum": 10,
+            "nullable": true
+        },
+        "favorite": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10,
+            "nullable": true
+        }
+    },
+    "required": ["title", "isPrivate"],
+    "if": {
+        "properties": {
+            "isPrivate": { "const": 0 }
+        }
+    },
+    "then": {
+        "properties": {
+            "watchDate": { "const": null},
+            "rating":    { "const": null},
+            "favorite":  { "const": null}
+        }
+    }
+}

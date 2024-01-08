@@ -1,0 +1,41 @@
+{
+    "type": "object",
+    "properties": {
+      "fid": {
+        "type": "integer"
+      },
+      "uid": {
+        "type": "integer"
+      },
+      "completed": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "reviewDate": {
+        "type": "string",
+        "nullable": true
+      },
+      "rating": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10,
+        "nullable": true
+      },
+      "review": {
+        "type": "string",
+        "maxLength": 100,
+        "nullable": true
+      }
+    },
+    "required": ["uid", "completed"],
+    "if": {
+      "properties": {
+        "completed": { "const": 1 }
+      }
+    },
+    "then": {
+      "required": ["reviewDate", "rating", "review"]
+    }
+  }
+  

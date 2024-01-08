@@ -1,156 +1,81 @@
 'use strict'
 
-// Imports
-const Passport = require('passport')
-const Authentication = require('./src/auth')
-const Storage = require('./src/storage')
-const FileSystem = require('fs')
-const Path = require('path')
-const HTTPServer = require('http')
-const OAPISwagTools = require('oas3-tools')
-const { Validator, ValidationError } = require('express-json-validator-middleware')
+// Film-Manager
 
-// Server Port
-const PORT = 8080
+const Express = require('express')
+const Morgan = require('morgan')
+const { Database } = require('./utils/database')
+const { MasterController } = require('./controllers/Master')
 
-const options = {
-    routing: { 
-        controllers: Path.join(__dirname, './DAOs') 
-    },
-}
-const expressAppConfig = OAPISwagTools.expressAppConfig(Path.join(__dirname, 'api/openapi.yaml'), options)
-expressAppConfig.addValidator()
+// Crea un riferimento al database
+const sqlite = new Database()
+// Crea un riferimento al controllore della tabella films
+const master = new MasterController(sqlite)
 
-const app = expressAppConfig.getApp()
-Authentication.initAuthentication(app)
+// Crea un'istanza di Express
+const app = new Express()
+// Seleziona la porta
+const port = 8080
 
-const filmDAO   = require(Path.join(__dirname, 'DAOs/FilmDao'))
-const reviewDAO = require(Path.join(__dirname, 'DAOs/ReviewDao'))
+app.use(Morgan('dev'))
+app.use(Express.json())
 
-// Set up the schema validator
-const loginRequestSchema = 
-    JSON.parse(FileSystem.
-        readFileSync(Path.
-            join('.', 'schemas', 'login_schema.json'))
-                .toString())
+// Funzioni aperte a tutti
+const rootURL      = '/api/'                                // Radice
+const publicFilms  = '/api/films/public'                    // Accedi alla lista dei film pubblici
+const publicFilm   = '/api/films/public/:fid'               // Accedi ad uno del film pubblici
+const reviewsFilm  = '/api/films/public/:fid/reviews'       // Accedi alla recensioni di un film pubblico
+const reviewFilm   = '/api/films/public/:fid/reviews/:uid'  // Accedi ad una particolare recensione di un film pubblico
 
-const postingFilmSchema  = 
-    JSON.parse(FileSystem.
-        readFileSync(Path.
-            join('.', 'schemas', 'post_film_schema.json'))
-                .toString())
+const privateFilm       = '/api/films/private/:fid'        // Accedi ad un film privato
+const deletePrivateFilm = '/api/films/private/:fid'        // Cancella uno tra i film privati
+const deletePublicFilm  = '/api/films/public/:fid'         // Cancella uno tra i film publici
+const newPublicFilm     = '/api/films/public'              // Crea un nuovo film, tra quelli pubblici
+const newPrivateFilm    = '/api/films/private'             // Crea un nuovo film, tra quelli privati
+const editPrivateFilm   = '/api/films/private/:fid'        // Modifica uno dei film tra quelli privati
+const editPublicFilm    = '/api/films/public/:fid'         // Modifica uno dei film tra quelli pubblici
 
-const postingReviewSchema = 
-    JSON.parse(FileSystem.
-        readFileSync(Path.
-            join('.', 'schemas', 'post_review_schema.json'))
-                .toString())
+const userReviews  = '/api/reviews/invited'                 // Accedi a tutte le recensioni associate al profilo
+const newReview    = '/api/films/public/:fid/reviews'       // Crea una nuova recensione associata ad un film
+const deleteReview = '/api/films/public/:fid/reviews/:uid'  // Cancella una recensione 
+const editReview   = '/api/films/public/:fid/reviews/:uid'  // Modifica una recensione
 
-const editingFilmSchema = 
-    JSON.parse(FileSystem.
-        readFileSync(Path.
-            join('.', 'schemas', 'edit_film_schema.json'))
-                .toString())
+const login  = '/api/auth'        // Autenticazione sul servizio
+const logout = '/api/no-auth'     // Terminazione e uscita dal servizio
 
-// Create a new validator
-const validator = new Validator({ allErrors: true })
+// Inizializza autenticazione
+master.initAuth(app)
 
-// Add schemas to validator
-validator.ajv.addSchema([
-    loginRequestSchema, 
-    postingFilmSchema, 
-    editingFilmSchema, 
-    postingReviewSchema])
+// Funzioni per la lettura di film pubblici
+app.get(publicFilms, (req, res, next) => master.publicFilms(req, res, next))
+app.get(publicFilm,  (req, res, next) => master.publicFilm(req, res, next))
+// Fuzioni per la lettura delle recensioni (base)
+app.get(reviewsFilm, (req, res, next) => master.reviewsFilm(req, res, next))
+app.get(reviewFilm,  (req, res, next) => master.reviewFilm(req, res, next))
+// Funzioni per la lettura di film privati
+app.get(privateFilm, master.isAuth, (req, res, next) => master.privateFilm(req, res, next))
+// Funzioni per la creazione di nuovi film
+app.post(newPrivateFilm, master.isAuth, (req, res, next) => master.newPrivateFilm(req, res, next))
+app.post(newPublicFilm,  master.isAuth, (req, res, next) => master.newPublicFilm(req, res, next))
+// Funzioni per la cancellazione di film
+app.delete(deletePrivateFilm, master.isAuth, (req, res, next) => master.deletePrivateFilm(req, res, next))
+app.delete(deletePublicFilm,  master.isAuth, (req, res, next) => master.deletePublicFilm(req, res, next))
+// Funzioni per la modifica di film
+app.put(editPublicFilm,  master.isAuth, (req, res, next) => master.editPublicFilm(req, res, next))
+app.put(editPrivateFilm, master.isAuth, (req, res, next) => master.editPrivateFilm(req, res, next))
+// Fuzioni per la lettura delle recensioni (avanzate)
+app.get(userReviews, master.isAuth, (req, res, next) => master.userReviews(req, res, next))
+// Funzione per la creazione di una nuova recensione
+app.post(newReview, master.isAuth, (req, res, next) => master.newReview(req, res, next))
+// Funzione per la cancellazione di una recensione
+app.delete(deleteReview, master.isAuth, (req, res, next) => master.deleteReview(req, res, next))
+// Funzione per la modifica di una recensione
+app.put(editReview, master.isAuth, (req, res, next) => master.editReview(req, res, next))
 
-const applyMiddleware = (middlewareList, handler) => {
-    return (req, res) => {
-        // Recursive function to execute middleware in order
-        const runMiddleware = (index) => {
-        if (index === middlewareList.length) {
-            // If all middleware are executed, call the handler
-              handler(req, res, req.params, req.query, req.body, req.user, () => {});
-        } else {
-            // Call the current middleware with a callback to the next middleware
-            middlewareList[index](req, res, () => runMiddleware(index + 1));
-        }
-    }
-    // Start running middleware from the beginning
-    runMiddleware(0);
-    }
-}
+// Registrazioni delle funzioni per gestire le sessioni, ossia l'autenticazione
+app.post(login,  (req, res, next) => master.login(req, res, next))
+app.post(logout, (req, res, next) => master.logout(req, res, next))
 
-
-// Public URLs
-const rootURL              = '/api/'
-const publicFilmsURL       = '/api/films/public'
-const publicFilmURL        = '/api/films/public/:fid'
-const reviewsPublicFilmURL = '/api/films/public/:fid/reviews'
-const reviewPublicFilmURL  = '/api/films/public/:fid/reviews/:uid'
-
-// Authenticated URLs
-const postFilmURL           = '/api/films'
-const editFilmURL           = '/api/films/:fid'
-const deleteFilmURL         = '/api/films/:fid'
-const privateFilmsURL       = '/api/films/private'
-const privateFilmURL        = '/api/films/private/:fid'
-const reviewsPrivateFilmURL = '/api/films/private/:fid/reviews'
-const reviewPrivateFilmURL  = '/api/films/private/:fid/reviews/:uid'
-const createdFilmsURL       = '/api/films/created'
-const invitedToReviewURL    = '/api/films/invited-to-review'
-const postReviewURL         = '/api/reviews'
-const editReviewURL         = '/api/reviews/:fid/:uid'
-const deleteReviewURL       = '/api/reviews/:fid/:uid'
-
-app.get(rootURL, applyMiddleware([], filmDAO.root))
-
-app.get(publicFilmsURL, applyMiddleware([], filmDAO.publicFilms))
-app.get(publicFilmURL, applyMiddleware([], filmDAO.publicFilm))
-app.get(reviewsPublicFilmURL, applyMiddleware([], filmDAO.reviewsPublicFilm))
-app.get(reviewPublicFilmURL, applyMiddleware([], filmDAO.reviewPublicFilm))
-app.get(privateFilmsURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.privateFilms))
-app.get(privateFilmURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.privateFilm))
-app.get(reviewsPrivateFilmURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.reviewsPrivateFilm))
-app.get(reviewPrivateFilmURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.reviewPrivateFilm))
-app.get(createdFilmsURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.createdFilms))
-app.get(invitedToReviewURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.filmsToReview))
-
-app.post(postFilmURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.newFilm))
-app.put(editFilmURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.editFilm))
-app.delete(deleteFilmURL, applyMiddleware([Authentication.isLoggedIn], filmDAO.deleteFilm))
-
-app.post(postReviewURL, applyMiddleware([Authentication.isLoggedIn], reviewDAO.newReview))
-app.put(editReviewURL, applyMiddleware([Authentication.isLoggedIn], reviewDAO.editReview))
-app.delete(deleteReviewURL, applyMiddleware([Authentication.isLoggedIn], reviewDAO.deleteReview))
-
-
-app.post('/api/user/auth', validator.validate({body: loginRequestSchema}), (req, res, next) => {
-    
-    Passport.authenticate('local', (error, user, info) => {
-        if (error) return next(error)
-        if (!user && info) return res.status(400).send('Username and/or password are missing')
-        if (!user) return res.status(401).send('Username and/or are not valid')
-        req.login(user, (err) => {
-            if (err) return next(err)
-            return res.status(200).json(req['user'])
-        })
-    }) 
-    (req, res, next)
-})
-app.post('/api/user/no-auth', (req, res) => req.logout( () => {res.end()}))
-
-
-// Error middleware
-app.use((err, _, res, next) => {
-    if (err instanceof ValidationError) {
-        return res.status(400).send(err)
-    }
-    next(err)
-})
-
-// Initialize the Swagger middleware
-HTTPServer.createServer(app).listen(PORT, () => {
-    console.log('###################################################################')
-    console.log(`Your server is listening on port ${PORT} (http://localhost:${PORT})`)
-    console.log(`Swagger-ui is available on http://localhost:${PORT}/docs`)
-    console.log('###################################################################')
-})
+// Avvia il servizio
+app.listen(port, () =>
+    console.log(`Film manager is listening at http://localhost:${port}`))

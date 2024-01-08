@@ -1,0 +1,24 @@
+{
+    "type": "object",
+    "properties": {
+        "title": {
+            "type": "string"
+        },
+        "watchDate": {
+            "type": "string",
+            "nullable": true
+        },
+        "rating": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 10 
+        },
+        "favorite": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1,
+            "nullable": true
+        }
+    }
+}
